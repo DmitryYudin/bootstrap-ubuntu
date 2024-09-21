@@ -3,11 +3,12 @@
 set -eu -o pipefail
 [[ $UID != 0 ]] && echo "error: please, run as root" >&2 && exit 1
 
-curl -sL https://apt.kitware.com/kitware-archive.sh | bash -
-apt -y install cmake
+apt install -y kafkacat
+
+! command -v kcat && ln -s $(which kafkacat) /usr/local/bin/kcat
 
 cat <<EOT
 -------------------------------------------------------------------------------
-$(cmake --version | head -n1)
+$(kcat -V | grep Version)
 -------------------------------------------------------------------------------
 EOT

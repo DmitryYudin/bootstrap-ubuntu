@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -eu -o pipefail
+set -eu -o pipefail && cd "$(dirname "$0")" >/dev/null 2>&1
 
 DISTRO=humble
 
@@ -21,7 +21,8 @@ entrypoint()
     local do_install= do_remove=
     while [[ $# != 0 ]]; do
         case $1 in
-            i|-i|--install)  do_install=1;;
+            -h|--help) usage; exit;;
+            i|-i|--install) do_install=1;;
             r|d|u|-u|--remove|--delete|--uninstall) do_remove=1;;
             *) echo "error: unknown option '$1'" >&2 && exit 1
         esac
@@ -34,16 +35,15 @@ entrypoint()
     if [[ -n $do_remove ]]; then
         banner "Remove ROS2 $DISTRO"
         apt remove "ros-$DISTRO-"'*' || true
-        rm /etc/apt/sources.list.d/ros2.list
         apt update
         apt autoremove
     fi
 
     [[ -z $do_install ]] && return 0
 
-    banner "Set locale and register repo."
+    banner "Set locale and register repo"
     check-locale
-    register-repo
+    ./register-apt-repo.sh http://packages.ros.org/ros2/ubuntu https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
 
     if :; then
         banner "Desktop Install (Recommended): ROS, RViz, demos, tutorials."
@@ -72,22 +72,6 @@ check-locale()
     [[ $l == $wanted ]] && return
 
     echo "error: unable to set locale to '$wanted', current locale is '$l'" >&2 && exit 1
-}
-
-register-repo()
-{
-    apt install software-properties-common
-    add-apt-repository -y universe
-    #apt upgrade
-
-    apt install curl
-    local key=/usr/share/keyrings/ros-archive-keyring.gpg
-    local arch=$(dpkg --print-architecture)
-    local UBUNTU_CODENAME=$(. /etc/os-release && echo $UBUNTU_CODENAME)
-    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $key
-    echo "deb [arch=$arch signed-by=$key] http://packages.ros.org/ros2/ubuntu $UBUNTU_CODENAME main" | 
-            sudo tee /etc/apt/sources.list.d/ros2.list >/dev/null
-    apt update
 }
 
 banner() {

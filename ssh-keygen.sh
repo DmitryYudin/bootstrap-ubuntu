@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
-#email=yudind@gmail.com
-email=dvyudin@sberautotech.ru
+email=${1:-}
+: ${email:?not set}
+
 ssh-keygen -t ed25519 -C "$email" -f id_ed25519
