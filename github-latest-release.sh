@@ -19,4 +19,4 @@ EOT
 case ${1:-} in -h|--help) usage; exit;; esac
 [[ $# == 0 ]] && usage >&2 && exit 1
 url=https://api.github.com/repos/$1/releases
-curl -fsSL "$url" -o - | grep '"tag_name": ' | head -n1 | cut -d: -f2 | cut -d\" -f2
+curl -fsSL "$url" | grep '"tag_name": ' | head -n1 | cut -d: -f2 | cut -d\" -f2

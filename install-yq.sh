@@ -14,7 +14,7 @@ fi
 
 echo "Downloading $TAG"
 curl -fsSL https://github.com/$NAME/releases/download/$TAG/$BUNDLE | \
-        tar -xzf - -C /usr/local/bin yq_linux_amd64 --transform s/_linux_amd64//
+        tar -xzf - -C /usr/local/bin ./yq_linux_amd64 --transform s/_linux_amd64//
 
 cat <<EOT
 -------------------------------------------------------------------------------
